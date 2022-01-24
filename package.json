@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Varsha2629/Tinyapp/issues"
   },
-  "homepage": "https://github.com/Varsha2629/Tinyapp#readme"
+  "homepage": "https://github.com/Varsha2629/Tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  }
 }
