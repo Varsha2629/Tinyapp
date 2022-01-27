@@ -10,12 +10,12 @@
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>TinyApp</title>
 </head>
-
+<%- include('partials/_header') %>
 <body>
-  <%- include('partials/_header') %>
+  
     <main style="margin: 1em;">
       <h3>Create Account</h3>
-      <form class="form" action="/register" method="POST">
+      <form class="justify-content-center" method="POST" action="/register">
         <div class="form-group mb-2">
           <!-- textbox for email input -->
           <label for="email">Email address</label>
@@ -23,11 +23,12 @@
             style="width: 300px; margin: 1em"></div>
           <!-- textbox for password input -->
           <label for="password">Password:</label>
-          <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin: 1em"></form>
-          <!-- submit button for form -->
+          <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin: 1em">
           <button type="submit" class="btn btn-success">Register</button>
-        </div>
       </form>
+          <!-- submit button for form -->
+         
+        
 
     </main>
     <!-- Bootstrap JS -->

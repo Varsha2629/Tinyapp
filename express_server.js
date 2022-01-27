@@ -85,6 +85,47 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 
+
+app.get("/register", (req, res) => {
+  // console.log("here i am!")
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  }
+  res.render("register", templateVars)
+});
+
+// handle the request of the register form to the obj
+app.post("/register", (req, res) => {
+  const userEmail = req.body.email;
+  const userPass = req.body.password;
+
+  if (!userEmail || !userPass) {
+      return res.status(400).send("Please Enter email and password!");
+  } else if (emailCheck(users, userEmail)) {
+    //console.log('user not found')
+    res.sendStatus('User already Exits', 400)
+
+  } else {
+    const user_id = generateRandomString();  // add new user 
+    users[user_id] = {
+      id: user_id, email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie('user_id')
+    res.redirect("/urls")
+  }
+
+});
+
+
+
+app.get('/login', (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  }
+  res.render("login", templateVars)
+});
+
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPass = req.body.password;
@@ -106,44 +147,6 @@ app.post("/logout", (req, res) => {
   res.redirect('/urls')
 });
 
-// handle the request of the register form to the obj
-app.post("/register", (req, res) => {
-  const userEmail = req.body.email;
-  const userPass = req.body.password;
-
-  if (!userEmail || !userPass) {
-    res.sendStatus(400)
-  } else if (emailCheck(users, userEmail)) {
-    //console.log('user not found')
-    res.sendStatus('User already Exits', 400)
-
-  } else {
-    const user_id = generateRandomString();  // add new user 
-    users[user_id] = {
-      id: user_id, email: req.body.email,
-      password: req.body.password
-    };
-    res.cookie('user_id')
-    res.redirect("/urls")
-  }
-
-});
-
-app.get("/register", (req, res) => {
-  // console.log("here i am!")
-  const templateVars = {
-    user: users[req.cookies.user_id]
-  }
-  res.render("register", templateVars)
-});
-
-
-app.get('/login', (req, res) => {
-  const templateVars = {
-    user: users[req.cookies.user_id]
-  }
-  res.render("login", templateVars)
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
