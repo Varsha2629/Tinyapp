@@ -209,6 +209,8 @@ app.post("/login", (req, res) => {
     if (userPass === users[user].password) {
       res.cookie("user_id", user)
       res.redirect('/urls')
+    }else {
+      res.status(401).send('Wrong Credentials!')
     }
   }
   res.status(403).redirect('register')
