@@ -15,7 +15,7 @@
         <div class="navbar-nav login-logout" style="position: absolute; right:0"> <a class="nav-item nav-link" href="/login">Login</a> <a class="nav-item nav-link " href="/register">Register</a> </div>
         <% } else{ %>
           <form class="form-inline" method="POST" action="/logout">
-            <div class="navbar-nav"> <span>
+            <div class="navbar-nav" style="position: absolute; right:0; color: #FFFFFF"> <span>
                 <p>
                   <b>Logged in as: </b>
                   <%=user.email%>
