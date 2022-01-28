@@ -1,7 +1,9 @@
 const getUserByEmail = (email, database) => {  //Return user if email is im the database
+  // console.log(email, database)
   for (const user in database) {
+
     if (database[user]["email"] === email) {
-      return user;
+      return database[user];
     }
   }
   return false;
@@ -21,7 +23,7 @@ const getUserUrls = (db, cookieUser) => {
     }
 
   }
-  
+  console.log(userUrls)
   return userUrls;
 };
 

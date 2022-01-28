@@ -1,5 +1,5 @@
 
-const {getUserByEmail, getUserUrls, generateRandomString} = require('./helpers');
+const { getUserByEmail, getUserUrls, generateRandomString } = require('./helpers');
 
 const express = require("express");
 const app = express();
@@ -53,12 +53,10 @@ const users = {
 app.set("view engine", "ejs");
 
 //All URLs(routes)
-// app.get("/", (req, res) => {
-//   if (!users[req.cookies["user_id"]]) {
-//     return res.redirect("/login");
-//   }
-//   res.redirect("/urls");
-// });
+app.get("/", (req, res) => {
+  // res.redirect("/urls");
+  res.json(urlDatabase)
+});
 
 
 app.get("/urls", (req, res) => {
@@ -122,8 +120,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     return res.status(403).send("permition to delete is denied!");
 
   } else {
-    delete urlDatabase[req.params.shortURL];
-    res.redirect(`/urls`);
+    delete urlDatabase[shortURL];
+    console.log(urlDatabase)
+    // res.redirect(`/urls`);
+    res.send('hello')
   }
 });
 
@@ -146,7 +146,8 @@ app.post("/urls/:shortURL/update", (req, res) => {
 app.get("/register", (req, res) => {
   // console.log("here i am!")
   const templateVars = {
-    user: users[req.session["user_id"]]
+  //user: users[req.session["user_id"]]
+    user: null
   }
   res.render("register", templateVars)
 });
@@ -155,25 +156,42 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPass = req.body.password;
+  const id = generateRandomString()
 
-  if (!userEmail || !userPass) {
-    return res.status(400).send("Please Enter email and password!");
-  } else if (getUserByEmail(users, userEmail)) {
-    //console.log('user not found')
-    res.status(400).send("User Already registed!");
-
-  } else {
-
-    const hashedPassword = bcrypt.hashSync(userPass, salt);  // encrypt password
-    const user_id = generateRandomString();  // add new user 
-    users[user_id] = {
-      id: user_id,
+    const user = {
+      id, 
       email: userEmail,
-      password: hashedPassword,
-    };
-    req.session['user_id'] = user_id;
+      password: bcrypt.hashSync(req.body.password, 3)
+    }
+    if(userEmail === '' || userPass === '') {
+      res.status(400).send('email and password can not be empty');
+      return
+    }
+    if(getUserByEmail(userEmail, user)){
+      res.status(400).send('email already exits!')
+    }
+    users[id] = user;
+    console.log(users);
+    req.session.user_id = id;
+
+  // if (!userEmail || !userPass) {
+  //   return res.status(400).send("Please Enter email and password!");
+  // } else if (getUserByEmail(users, userEmail)) {
+  //   //console.log('user not found')
+  //   res.status(400).send("User Already registed!");
+
+  // } else {
+
+  //   const hashedPassword = bcrypt.hashSync(userPass, salt);  // encrypt password
+  //   const user_id = generateRandomString();  // add new user 
+  //   users[user_id] = {
+  //     id: user_id,
+  //     email: userEmail,
+  //     password: hashedPassword,
+  //   };
+  //   req.session['user_id'] = user_id;
     res.redirect("/urls")
-  }
+ // }
 
 });
 
@@ -181,6 +199,7 @@ app.post("/register", (req, res) => {
 
 app.get('/login', (req, res) => {
   const templateVars = {
+    // set user to null
     user: users[req.session.user_id]
   }
   res.render("login", templateVars)
@@ -190,20 +209,22 @@ app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPass = req.body.password;
 
-  const user = getUserByEmail(users, userEmail)
-  // console.log(users[user].email)
-
-  if (user) {
-    const hashedPassword = bcrypt.hashSync(userPass, salt); 
-    if (hashedPassword === users[user].password) {
-     // res.cookie("user_id", user)
-     return res.redirect('/urls')
+  const user = getUserByEmail(userEmail, users)
+  console.log(user)
+  console.log(req.body)
+  if (user && bcrypt.compareSync(userPass, user.password)) {
+    // const hashedPassword = bcrypt.hashSync(userPass, salt);
+    // if (hashedPassword === users[user].password) {
+    //   // res.cookie("user_id", user)
+      req.session.user_id = user.id;
       
+      res.redirect('/urls')
+
     } else {
-      return res.status(401).send('Wrong Credentials!')
+      res.status(403).send('Wrong Credentials!')
     }
-  }
-  res.status(403).redirect('register')
+  
+  // res.status(403).redirect('register')
 });
 
 app.post("/logout", (req, res) => {
