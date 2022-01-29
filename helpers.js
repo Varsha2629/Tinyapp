@@ -1,7 +1,5 @@
 const getUserByEmail = (email, database) => {  //Return user if email is im the database
-  // console.log(email, database)
   for (const user in database) {
-
     if (database[user]["email"] === email) {
       return database[user];
     }
@@ -9,9 +7,7 @@ const getUserByEmail = (email, database) => {  //Return user if email is im the 
   return false;
 };
 
-
 const getUserUrls = (db, cookieUser) => {
-  // console.log(db, cookieUser)
   let userUrls = {};
 
   for (let key of Object.keys(db)) {
@@ -23,7 +19,6 @@ const getUserUrls = (db, cookieUser) => {
     }
 
   }
-  console.log(userUrls)
   return userUrls;
 };
 
@@ -32,6 +27,4 @@ const generateRandomString = () => {
 }
 
 
-
-
-module.exports = { getUserByEmail, getUserUrls,  generateRandomString};
+module.exports = { getUserByEmail, getUserUrls, generateRandomString };

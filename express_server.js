@@ -12,7 +12,6 @@ const salt = bcrypt.genSaltSync(10);
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['861a4ba3-7bfe-420a-9ce2-a49a25c61645', '4e32a74a-b55b-4a50-a8cc-6384ce6a5dfc']
@@ -67,26 +66,6 @@ app.get("/urls", (req, res) => {
 
 });
 
-app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.session['user_id']] };
-  if (!templateVars.user) {
-    res.redirect("/login");
-  } else {
-    res.render("urls_new", templateVars);
-  }
-});
-
-app.get("/urls/:shortURL", (req, res) => {
-
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session['user_id']] };
-  res.render("urls_show", templateVars);
-});
-
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
-});
-
 app.post("/urls", (req, res) => {
 
   const shortUrl = generateRandomString()
@@ -96,7 +75,7 @@ app.post("/urls", (req, res) => {
     user_id: req.session['user_id'],
 
   };
-  console.log(urlDatabase[shortUrl]);
+
   res.redirect(`/urls/${shortUrl}`);            // Respond with 'Ok' 
 });
 
@@ -111,6 +90,30 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls`);
 });
 
+app.get("/urls/new", (req, res) => {
+  const templateVars = { user: users[req.session['user_id']] };
+  if (!templateVars.user) {
+    res.redirect("/login");
+  } else {
+    res.render("urls_new", templateVars);
+  }
+});
+
+app.get("/urls/:shortURL", (req, res) => {
+  if (!req.session.user_id) {
+    return res.status(403).send('Please login to view your urls!');
+  }
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session['user_id']] };
+  res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(longURL);
+});
+
+
+
 app.post("/urls/:shortURL/delete", (req, res) => {
   const cookieUser = req.session.user_id;
   const shortURL = req.params.shortURL;
@@ -119,9 +122,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
   } else {
     delete urlDatabase[shortURL];
-    console.log(urlDatabase)
-   res.redirect(`/urls`);
-    
+    res.redirect(`/urls`);
+
   }
 });
 
@@ -142,7 +144,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  // console.log("here i am!")
+
   const templateVars = {
     //user: users[req.session["user_id"]]
     user: null
@@ -177,8 +179,6 @@ app.post("/register", (req, res) => {
 
 });
 
-
-
 app.get('/login', (req, res) => {
   const templateVars = {
     // set user to null
@@ -192,8 +192,7 @@ app.post("/login", (req, res) => {
   const userPass = req.body.password;
 
   const user = getUserByEmail(userEmail, users)
-  console.log(user)
-  console.log(req.body)
+
   if (user && bcrypt.compareSync(userPass, user.password)) {
 
     req.session.user_id = user.id;
@@ -204,12 +203,10 @@ app.post("/login", (req, res) => {
     res.status(403).send('Wrong Credentials!')
   }
 
-  // res.status(403).redirect('register')
 });
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  //res.clearCookie("user_id")
   res.redirect('/login')
 });
 
