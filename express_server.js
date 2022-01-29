@@ -54,8 +54,8 @@ app.set("view engine", "ejs");
 
 //All URLs(routes)
 app.get("/", (req, res) => {
-  // res.redirect("/urls");
-  res.json(urlDatabase)
+  res.redirect("/urls");
+
 });
 
 
@@ -90,7 +90,6 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
 
   const shortUrl = generateRandomString()
-  // console.log("body longURL: ", req.body.longURL);  // Log the POST request body to the 
   console.log('urlDatabase', urlDatabase);
   urlDatabase[shortUrl] = {
     longURL: req.body.longURL,
@@ -109,7 +108,6 @@ app.post("/urls/:id", (req, res) => {
     user_id: req.session['user_id'],
 
   };
-  //console.log(urlDatabase);
   res.redirect(`/urls`);
 });
 
@@ -122,8 +120,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   } else {
     delete urlDatabase[shortURL];
     console.log(urlDatabase)
-    // res.redirect(`/urls`);
-    res.send('hello')
+   res.redirect(`/urls`);
+    
   }
 });
 
@@ -146,7 +144,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
 app.get("/register", (req, res) => {
   // console.log("here i am!")
   const templateVars = {
-  //user: users[req.session["user_id"]]
+    //user: users[req.session["user_id"]]
     user: null
   }
   res.render("register", templateVars)
@@ -158,40 +156,24 @@ app.post("/register", (req, res) => {
   const userPass = req.body.password;
   const id = generateRandomString()
 
-    const user = {
-      id, 
-      email: userEmail,
-      password: bcrypt.hashSync(req.body.password, 3)
-    }
-    if(userEmail === '' || userPass === '') {
-      res.status(400).send('email and password can not be empty');
-      return
-    }
-    if(getUserByEmail(userEmail, user)){
-      res.status(400).send('email already exits!')
-    }
-    users[id] = user;
-    console.log(users);
-    req.session.user_id = id;
+  const user = {
+    id,
+    email: userEmail,
+    password: bcrypt.hashSync(req.body.password, 3)
+  }
+  if (userEmail === '' || userPass === '') {
+    res.status(400).send('email and password can not be empty');
+    return
+  }
+  if (getUserByEmail(userEmail, user)) {
+    res.status(400).send('email already exits!')
+  }
+  users[id] = user;
+  console.log(users);
+  req.session.user_id = id;
 
-  // if (!userEmail || !userPass) {
-  //   return res.status(400).send("Please Enter email and password!");
-  // } else if (getUserByEmail(users, userEmail)) {
-  //   //console.log('user not found')
-  //   res.status(400).send("User Already registed!");
+  res.redirect("/urls")
 
-  // } else {
-
-  //   const hashedPassword = bcrypt.hashSync(userPass, salt);  // encrypt password
-  //   const user_id = generateRandomString();  // add new user 
-  //   users[user_id] = {
-  //     id: user_id,
-  //     email: userEmail,
-  //     password: hashedPassword,
-  //   };
-  //   req.session['user_id'] = user_id;
-    res.redirect("/urls")
- // }
 
 });
 
@@ -213,17 +195,15 @@ app.post("/login", (req, res) => {
   console.log(user)
   console.log(req.body)
   if (user && bcrypt.compareSync(userPass, user.password)) {
-    // const hashedPassword = bcrypt.hashSync(userPass, salt);
-    // if (hashedPassword === users[user].password) {
-    //   // res.cookie("user_id", user)
-      req.session.user_id = user.id;
-      
-      res.redirect('/urls')
 
-    } else {
-      res.status(403).send('Wrong Credentials!')
-    }
-  
+    req.session.user_id = user.id;
+
+    res.redirect('/urls')
+
+  } else {
+    res.status(403).send('Wrong Credentials!')
+  }
+
   // res.status(403).redirect('register')
 });
 
